@@ -1,11 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
 	fmt.Println("NI directories:", traktorDir(""))
+
+	db, err := sql.Open("sqlite3", "tracks.db")
+	if err != nil {
+		fmt.Println("Error opening db file:", err)
+		return
+	}
+	res, _ := db.Exec("CREATE TABLE 'tracks' id INTEGER, audio_id STRING")
+	fmt.Sprintf("%v\n", res)
 
 	historyPaths, _ := traktorHistoryPaths(traktorDir(""))
 	archiveFiles, _ := traktorArchiveFiles(historyPaths)

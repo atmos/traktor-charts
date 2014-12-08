@@ -9,7 +9,8 @@ export GOPATH
 default: build
 
 build: vet
-	go build -v -o ./bin/traktor-charts ./src/traktor.go ./src/traktor-charts.go
+	/usr/bin/env CC=clang \
+		go build -v -o ./bin/traktor-charts ./src/traktor.go ./src/traktor-charts.go
 
 doc:
 	godoc -http=:6060 -index
@@ -42,7 +43,8 @@ vendor_get: vendor_clean
 	GOPATH=${PWD}/_vendor go get -d -u -v \
 	github.com/jpoehls/gophermail \
 	github.com/codegangsta/martini \
-	github.com/stretchr/testify
+	github.com/stretchr/testify \
+	github.com/mattn/go-sqlite3
 
 vendor_update: vendor_get
 	rm -rf `find ./_vendor/src -type d -name .git` \

@@ -23,7 +23,7 @@ func main() {
 		}
 		fileCount++
 	}
-	fmt.Println("Found", fileCount, "NML files")
+	fmt.Println("Found", fileCount, "archive files")
 
 	writeOutput(db)
 

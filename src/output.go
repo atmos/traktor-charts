@@ -23,6 +23,8 @@ func writeOutput(db *sql.DB) {
 	fp.WriteString("# My Traktor DJ Charts\n")
 	fp.WriteString(totalPlays + " songs played," + totalTracks + "were unique.\n")
 
+	fmt.Println(totalPlays, "songs played,", totalTracks, "were unique.\n")
+
 	for year := 2016; year > 2012; year-- {
 		for month := 12; month > 0; month-- {
 			monthlyEntries := findChartEntriesByMonthAndYear(db, month, year)

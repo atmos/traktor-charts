@@ -36,7 +36,7 @@ func TestNMLFileParsing(t *testing.T) {
 
 func TestTraktorHistoryPaths(t *testing.T) {
 	historyPaths, _ := traktorHistoryPaths("../test/fixtures")
-	assert.Equal(t, 4, len(historyPaths), "Should have 4 paths")
+	assert.Equal(t, 2, len(historyPaths), "Should have 2 paths")
 }
 
 func TestTraktorArchiveFiles(t *testing.T) {

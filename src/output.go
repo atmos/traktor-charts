@@ -9,6 +9,53 @@ import (
 	"time"
 )
 
+func writeChartByYear(fp *os.File, db *sql.DB) {
+	fp.WriteString("## Top tracks by year\n\n")
+	for year := 2016; year > 2012; year-- {
+		yearlyEntries := findChartEntriesByYear(db, year)
+
+		if len(yearlyEntries) > 0 {
+			format := delimiterFormatString()
+
+			fp.WriteString(fmt.Sprintf("### Best of %d\n\n", year))
+			fp.WriteString(outputTableHeader())
+			for i, chartEntry := range yearlyEntries {
+				title := chartEntry.Title
+				artist := chartEntry.Artist
+
+				output := fmt.Sprintf(format, i+1, artist, title, listenLink(chartEntry))
+				fp.WriteString(output)
+			}
+			fp.WriteString("\n")
+		}
+	}
+}
+
+func writeChartByMonthAndYear(fp *os.File, db *sql.DB) {
+	fp.WriteString("## Years by month\n\n")
+	for year := 2016; year > 2012; year-- {
+		for month := 12; month > 0; month-- {
+			monthlyEntries := findChartEntriesByMonthAndYear(db, month, year)
+
+			if len(monthlyEntries) > 0 {
+				format := delimiterFormatString()
+
+				fp.WriteString(fmt.Sprintf("### %s ", time.Month(month)))
+				fp.WriteString(strconv.Itoa(year) + " Charts" + "\n\n")
+				fp.WriteString(outputTableHeader())
+				for i, chartEntry := range monthlyEntries {
+					title := chartEntry.Title
+					artist := chartEntry.Artist
+
+					output := fmt.Sprintf(format, i+1, artist, title, listenLink(chartEntry))
+					fp.WriteString(output)
+				}
+				fp.WriteString("\n")
+			}
+		}
+	}
+}
+
 func writeOutputFrom(db *sql.DB) {
 	totalPlays := strconv.Itoa(countForTable(db, "plays"))
 	totalTracks := strconv.Itoa(countForTable(db, "tracks"))
@@ -25,58 +72,19 @@ func writeOutputFrom(db *sql.DB) {
 
 	fmt.Println(totalPlays, "songs played,", totalTracks, "were unique.\n")
 
-	fp.WriteString("## Top tracks by year\n\n")
-	for year := 2016; year > 2012; year-- {
-		yearlyEntries := findChartEntriesByYear(db, year)
+	writeChartByYear(fp, db)
+	writeChartByMonthAndYear(fp, db)
 
-		if len(yearlyEntries) > 0 {
-			format := delimiterFormatString()
-
-			fp.WriteString(fmt.Sprintf("### Best of %d\n\n", year))
-			fp.WriteString(outputTableHeader())
-			for i, chartEntry := range yearlyEntries {
-				title := chartEntry.Title
-				artist := chartEntry.Artist
-
-				output := fmt.Sprintf(format, i+1, artist, title, beatPortLink(chartEntry))
-				fp.WriteString(output)
-			}
-			fp.WriteString("\n")
-		}
-	}
-
-	fp.WriteString("## Years by month\n\n")
-	for year := 2016; year > 2012; year-- {
-		for month := 12; month > 0; month-- {
-			monthlyEntries := findChartEntriesByMonthAndYear(db, month, year)
-
-			if len(monthlyEntries) > 0 {
-				format := delimiterFormatString()
-
-				fp.WriteString(fmt.Sprintf("### %s ", time.Month(month)))
-				fp.WriteString(strconv.Itoa(year) + " Charts" + "\n\n")
-				fp.WriteString(outputTableHeader())
-				for i, chartEntry := range monthlyEntries {
-					title := chartEntry.Title
-					artist := chartEntry.Artist
-
-					output := fmt.Sprintf(format, i+1, artist, title, beatPortLink(chartEntry))
-					fp.WriteString(output)
-				}
-				fp.WriteString("\n")
-			}
-		}
-	}
 	fp.Sync()
 }
 
-func beatPortLink(ce ChartEntry) string {
-	link := "http://www.beatport.com/search?query="
+func listenLink(ce ChartEntry) string {
+	link := "https://www.youtube.com/results?search_query="
 	return link + url.QueryEscape(ce.Artist+" "+ce.Title)
 }
 
 func delimiterFormatString() string {
-	return "| %d | %s | %s | [Beatport](%s) |\n"
+	return "| %d | %s | %s | [YouTube](%s) |\n"
 }
 
 func outputTableHeader() string {

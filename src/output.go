@@ -3,69 +3,48 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
+	"net/url"
 	"time"
 )
 
 func displayOutput(db *sql.DB) {
 	totalPlays := countForTable(db, "plays")
 	totalTracks := countForTable(db, "tracks")
-	fmt.Println("Found", totalTracks, "unique tracks.")
-	fmt.Println("For a total of", totalPlays, "plays.\n")
 
-	for year := 2012; year < 2016; year++ {
-		for month := 1; month < 13; month++ {
+	fmt.Println("# My Traktor DJ Charts\n")
+	fmt.Println(totalPlays, " songs played,", totalTracks, "were unique.\n")
+
+	for year := 2016; year > 2012; year-- {
+		for month := 12; month > 0; month-- {
 			monthlyEntries := findChartEntriesByMonthAndYear(db, month, year)
 
 			if len(monthlyEntries) > 0 {
-				artistLength := longestArtistName(monthlyEntries)
-				titleLength := longestTitleName(monthlyEntries)
+				format := delimiterFormatString()
 
-				format := delimiterFormatString(artistLength, titleLength)
-
-				fmt.Println(time.Month(month), year, "Charts")
-				fmt.Println(lineDelimiter(artistLength, titleLength))
+				fmt.Println("##", time.Month(month), year, "Charts", "\n")
+				fmt.Println(outputTableHeader())
 				for i, chartEntry := range monthlyEntries {
-					output := fmt.Sprintf(format, i+1, chartEntry.Artist, chartEntry.Title, chartEntry.Count)
+					title := chartEntry.Title
+					artist := chartEntry.Artist
+
+					output := fmt.Sprintf(format, i+1, artist, title, beatPortLink(chartEntry))
 					fmt.Println(output)
 				}
-				fmt.Println(lineDelimiter(artistLength, titleLength) + "\n")
+				fmt.Println("\n")
 			}
 		}
 	}
 }
 
-func delimiterFormatString(artistLength int, titleLength int) string {
-	return "| %2d | %-" + strconv.Itoa(artistLength) + "q | %-" + strconv.Itoa(titleLength) + "q | %02d |"
+func beatPortLink(ce ChartEntry) string {
+	link := "http://www.beatport.com/search?query="
+	return link + url.QueryEscape(ce.Artist+" "+ce.Title)
 }
 
-func longestArtistName(monthlyEntries []ChartEntry) int {
-	max := 0
-	for i := 0; i < len(monthlyEntries); i++ {
-		length := len(monthlyEntries[i].Artist)
-		if length > max {
-			max = length
-		}
-	}
-	return max + 2
+func delimiterFormatString() string {
+	return "| %d | %s | %s | [Beatport](%s) |"
 }
 
-func longestTitleName(monthlyEntries []ChartEntry) int {
-	max := 0
-	for i := 0; i < len(monthlyEntries); i++ {
-		length := len(monthlyEntries[i].Title)
-		if length > max {
-			max = length
-		}
-	}
-	return max + 6
-}
-
-func lineDelimiter(artistLength int, titleLength int) string {
-	delimiter := ""
-	totalDashes := artistLength + titleLength + 15
-	for i := 0; i < totalDashes; i++ {
-		delimiter += "-"
-	}
-	return "+" + delimiter + "+"
+func outputTableHeader() string {
+	return "| Number | Artist | Title | Cop It |\n|---|---|---|---|"
 }

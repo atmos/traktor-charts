@@ -10,7 +10,7 @@ func main() {
 	historyPaths, _ := traktorHistoryPaths(traktorDir(""))
 	archiveFiles, _ := traktorArchiveFiles(historyPaths)
 
-	db, err := initializeDB("tracktor-charts.db")
+	db, err := initializeDB("traktor-charts.db")
 	if err != true {
 		fmt.Println("Error initializing db", err)
 	}
@@ -25,7 +25,12 @@ func main() {
 	}
 	fmt.Println("Found", fileCount, "NML files")
 
-	displayOutput(db)
+	writeOutput(db)
+
+	fmt.Println("Your charts are in ~/.traktor-charts.md.")
+	fmt.Println("You should share them on https://gist.github.com")
+
+	fmt.Println("Run 'cat ~/.traktor-charts.md | pbcopy' in your terminal and paste into a new gist.")
 
 	db.Close()
 }

@@ -20,6 +20,7 @@ CREATE TABLE 'tracks'(
 CREATE TABLE 'plays'(
   id INTEGER PRIMARY KEY,
   track_id INTEGER,
+  year     INTEGER,
   month    INTEGER,
   day      INTEGER,
   hour     INTEGER,
@@ -41,15 +42,18 @@ INSERT INTO tracks (artist,name,audio_id) values(?,?,?)
 }
 func insertPlayStatment() string {
 	return `
-INSERT INTO plays (track_id, month, day, hour, minute) values(?,?,?,?,?)
+INSERT INTO plays (track_id, year, month, day, hour, minute) values(?,?,?,?,?,?)
 `
 }
 
-func playsByMonthStatement(month int) string {
+func playsByMonthAndYearStatement(month int, year int) string {
 	return `
 SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
 FROM plays,tracks
-WHERE month = ` + strconv.Itoa(month) + ` AND plays.track_id = tracks.id
+WHERE
+  month = ` + strconv.Itoa(month) +
+		` AND year = ` + strconv.Itoa(year) +
+		` AND plays.track_id = tracks.id
 GROUP BY plays.track_id
 ORDER by total DESC, tracks.artist ASC
 LIMIT 10;
@@ -74,9 +78,9 @@ func countForTable(db *sql.DB, tableName string) int {
 	}
 }
 
-func findChartEntriesByMonth(db *sql.DB, month int) []ChartEntry {
+func findChartEntriesByMonthAndYear(db *sql.DB, month int, year int) []ChartEntry {
 	var entries []ChartEntry
-	rows, err := db.Query(playsByMonthStatement(month))
+	rows, err := db.Query(playsByMonthAndYearStatement(month, year))
 	if err != nil {
 		fmt.Println("Unable to query plays by month", err, "\n")
 	}
@@ -116,7 +120,7 @@ func findTrackByAudioId(db *sql.DB, id string) int {
 }
 
 func insertPlay(db *sql.DB, ec EntryCollection, e Entry, id int) {
-	_, err := db.Exec(insertPlayStatment(), id, ec.Month, ec.Day, ec.Hour, ec.Minute)
+	_, err := db.Exec(insertPlayStatment(), id, ec.Year, ec.Month, ec.Day, ec.Hour, ec.Minute)
 	if err != nil {
 		fmt.Println("Error:\n", err)
 	}

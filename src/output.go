@@ -70,7 +70,7 @@ func writeOutputFrom(db *sql.DB) {
 	fp.WriteString("# My Traktor DJ Charts\n\n")
 	fp.WriteString(totalPlays + " songs played, " + totalTracks + " were unique.\n\n")
 
-	fmt.Println(totalPlays, "songs played,", totalTracks, "were unique.\n")
+	fmt.Println(totalPlays, "songs played,", totalTracks, "were unique.")
 
 	writeChartByYear(fp, db)
 	writeChartByMonthAndYear(fp, db)

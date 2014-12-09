@@ -75,14 +75,14 @@ LIMIT 15;
 func countForTable(db *sql.DB, tableName string) int {
 	rows, err := db.Query("SELECT COUNT(*) FROM " + tableName)
 	if err != nil {
-		fmt.Println("Unable to count:", tableName, err, "\n")
+		fmt.Println("Unable to count:", tableName, err)
 	}
 	defer rows.Close()
 
 	if rows.Next() {
 		var total int
 		if err := rows.Scan(&total); err != nil {
-			fmt.Println("Unable to find:", tableName, err, "\n")
+			fmt.Println("Unable to find:", tableName, err)
 		}
 		return total
 	} else {
@@ -94,7 +94,7 @@ func findChartEntriesByYear(db *sql.DB, year int) []ChartEntry {
 	var entries []ChartEntry
 	rows, err := db.Query(playsByYearStatement(year))
 	if err != nil {
-		fmt.Println("Unable to query plays by year", err, "\n")
+		fmt.Println("Unable to query plays by year", err)
 		return entries
 	}
 	defer rows.Close()
@@ -116,7 +116,7 @@ func findChartEntriesByMonthAndYear(db *sql.DB, month int, year int) []ChartEntr
 	var entries []ChartEntry
 	rows, err := db.Query(playsByMonthAndYearStatement(month, year))
 	if err != nil {
-		fmt.Println("Unable to query plays by month", err, "\n")
+		fmt.Println("Unable to query plays by month", err)
 	}
 	defer rows.Close()
 

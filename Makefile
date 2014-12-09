@@ -11,7 +11,7 @@ CGO_CFLAGS := -I$(BREW_PREFIX)/include
 CGO_LDFLAGS := -L$(BREW_PREFIX)/lib
 export CGO_CFLAGS CGO_LDFLAGS GOROOT GOPATH
 
-default: build
+default: vet vendor_update run
 
 build:
 	/usr/bin/env CC=clang \
@@ -33,7 +33,7 @@ lint:
 run: build
 	./bin/traktor-charts
 
-test:
+test: vet
 	$(GO) test ./src/...
 
 vendor_clean:

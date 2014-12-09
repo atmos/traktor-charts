@@ -96,9 +96,10 @@ func insertEntry(db *sql.DB, ec EntryCollection, e Entry) {
 }
 
 func initializeDB(s string) (*sql.DB, bool) {
-	os.Remove(s)
+	fullPath := os.ExpandEnv("${HOME}/." + s)
+	os.Remove(fullPath)
 
-	db, err := sql.Open("sqlite3", s)
+	db, err := sql.Open("sqlite3", fullPath)
 	if err != nil {
 		fmt.Println("Error opening db file:", err)
 		return db, false

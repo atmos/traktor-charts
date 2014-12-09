@@ -6,6 +6,6 @@ import (
 )
 
 func TestInitializeDatabase(t *testing.T) {
-	db, _ := initializeDB("../test-tracks.db")
+	db, _ := initializeDB("tracktor-charts-test.db")
 	assert.NotNil(t, db, "Database failed to initialize")
 }

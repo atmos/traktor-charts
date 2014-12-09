@@ -10,7 +10,7 @@ func main() {
 	historyPaths, _ := traktorHistoryPaths(traktorDir(""))
 	archiveFiles, _ := traktorArchiveFiles(historyPaths)
 
-	db, err := initializeDB("tracks.db")
+	db, err := initializeDB("tracktor-charts.db")
 	if err != true {
 		fmt.Println("Error initializing db", err)
 	}

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func writeOutput(db *sql.DB) {
+func writeOutputFrom(db *sql.DB) {
 	totalPlays := strconv.Itoa(countForTable(db, "plays"))
 	totalTracks := strconv.Itoa(countForTable(db, "tracks"))
 
@@ -21,7 +21,7 @@ func writeOutput(db *sql.DB) {
 	defer fp.Close()
 
 	fp.WriteString("# My Traktor DJ Charts\n")
-	fp.WriteString(totalPlays + " songs played," + totalTracks + "were unique.\n")
+	fp.WriteString(totalPlays + " songs played, " + totalTracks + " were unique.\n")
 
 	fmt.Println(totalPlays, "songs played,", totalTracks, "were unique.\n")
 

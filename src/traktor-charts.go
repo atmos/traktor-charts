@@ -25,7 +25,7 @@ func main() {
 	}
 	fmt.Println("Found", fileCount, "archive files")
 
-	writeOutput(db)
+	writeOutputFrom(db)
 
 	fmt.Println("Your charts are in ~/.traktor-charts.md.")
 	fmt.Println("You should share them on https://gist.github.com")

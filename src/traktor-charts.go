@@ -5,7 +5,7 @@ import (
 )
 
 func lineDelimiter() string {
-	return `+------------------------------------------------------------------------------------------+`
+	return `+---------------------------------------------------------------------------------------------+`
 }
 
 func main() {
@@ -34,14 +34,16 @@ func main() {
 	fmt.Println("Found", totalTracks, "unique tracks.")
 	fmt.Println("For a total of", totalPlays, "plays.")
 
-	monthlyEntries := findChartEntriesByMonth(db, 1)
-	fmt.Println("Status for month", 1)
-	fmt.Println(lineDelimiter())
-	for _, chartEntry := range monthlyEntries {
-		output := fmt.Sprintf("| %-25s | %-55s | %-02d |", chartEntry.Artist, chartEntry.Title, chartEntry.Count)
-		fmt.Println(output)
+	for month := 1; month < 13; month++ {
+		monthlyEntries := findChartEntriesByMonth(db, month)
+		fmt.Println("Status for month", month)
+		fmt.Println(lineDelimiter())
+		for _, chartEntry := range monthlyEntries {
+			output := fmt.Sprintf("| %-28s | %-55s | %-02d |", chartEntry.Artist, chartEntry.Title, chartEntry.Count)
+			fmt.Println(output)
+		}
+		fmt.Println(lineDelimiter())
 	}
-	fmt.Println(lineDelimiter())
 
 	db.Close()
 }

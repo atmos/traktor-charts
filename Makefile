@@ -4,19 +4,25 @@
 # so that import path resolution will prioritize
 # our third party snapshots.
 GOPATH := ${PWD}/_vendor:${GOPATH}
-export GOPATH
+BREW_PREFIX := $(shell brew --prefix 2>/dev/null)
+GO := $(BREW_PREFIX)/bin/go
+GOROOT := $(BREW_PREFIX)/Cellar/go/1.3.3/libexec
+CGO_CFLAGS := -I$(BREW_PREFIX)/include
+CGO_LDFLAGS := -L$(BREW_PREFIX)/lib
+export CGO_CFLAGS CGO_LDFLAGS GOROOT GOPATH
 
 default: build
 
-build: vet
-	go build -v -o ./bin/traktor-charts ./src/traktor.go ./src/traktor-charts.go
+build: vet vendor_get
+	/usr/bin/env CC=clang \
+		$(GO) build -v -o ./bin/traktor-charts ./src/traktor.go ./src/traktor-charts.go
 
 doc:
 	godoc -http=:6060 -index
 
 # http://golang.org/cmd/go/#hdr-Run_gofmt_on_package_sources
 fmt:
-	go fmt ./src/...
+	$(GO) fmt ./src/...
 
 # https://github.com/golang/lint
 # go get github.com/golang/lint/golint
@@ -27,7 +33,7 @@ run: build
 	./bin/traktor-charts
 
 test:
-	go test ./src/...
+	$(GO) test ./src/...
 
 vendor_clean:
 	rm -dRf ./_vendor/src
@@ -39,10 +45,11 @@ vendor_clean:
 # installed in GOPATH since `go get` will use
 # that existing location as the destination.
 vendor_get: vendor_clean
-	GOPATH=${PWD}/_vendor go get -d -u -v \
+	GOPATH=${PWD}/_vendor $(GO) get -d -u -v \
 	github.com/jpoehls/gophermail \
 	github.com/codegangsta/martini \
-	github.com/stretchr/testify
+	github.com/stretchr/testify \
+	github.com/mattn/go-sqlite3
 
 vendor_update: vendor_get
 	rm -rf `find ./_vendor/src -type d -name .git` \
@@ -53,4 +60,5 @@ vendor_update: vendor_get
 # http://godoc.org/code.google.com/p/go.tools/cmd/vet
 # go get code.google.com/p/go.tools/cmd/vet
 vet:
-	go vet ./src/...
+	$(GO) get code.google.com/p/go.tools/cmd/vet
+	$(GO) vet ./src/...

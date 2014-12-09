@@ -60,6 +60,18 @@ LIMIT 10;
 `
 }
 
+func playsByYearStatement(year int) string {
+	return `
+SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
+FROM plays,tracks
+WHERE year = ` + strconv.Itoa(year) +
+		` AND plays.track_id = tracks.id
+GROUP BY plays.track_id
+ORDER by total DESC, tracks.artist ASC
+LIMIT 15;
+`
+}
+
 func countForTable(db *sql.DB, tableName string) int {
 	rows, err := db.Query("SELECT COUNT(*) FROM " + tableName)
 	if err != nil {
@@ -76,6 +88,28 @@ func countForTable(db *sql.DB, tableName string) int {
 	} else {
 		return -1
 	}
+}
+
+func findChartEntriesByYear(db *sql.DB, year int) []ChartEntry {
+	var entries []ChartEntry
+	rows, err := db.Query(playsByYearStatement(year))
+	if err != nil {
+		fmt.Println("Unable to query plays by year", err, "\n")
+		return entries
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var title string
+		var total int
+		var artist string
+
+		if err := rows.Scan(&artist, &title, &total); err != nil {
+			fmt.Println("Unable to find this entry", err)
+		}
+		entries = append(entries, ChartEntry{Artist: artist, Title: title, Count: total})
+	}
+	return entries
 }
 
 func findChartEntriesByMonthAndYear(db *sql.DB, month int, year int) []ChartEntry {

@@ -20,11 +20,32 @@ func writeOutputFrom(db *sql.DB) {
 	}
 	defer fp.Close()
 
-	fp.WriteString("# My Traktor DJ Charts\n")
-	fp.WriteString(totalPlays + " songs played, " + totalTracks + " were unique.\n")
+	fp.WriteString("# My Traktor DJ Charts\n\n")
+	fp.WriteString(totalPlays + " songs played, " + totalTracks + " were unique.\n\n")
 
 	fmt.Println(totalPlays, "songs played,", totalTracks, "were unique.\n")
 
+	fp.WriteString("## Top tracks by year\n\n")
+	for year := 2016; year > 2012; year-- {
+		yearlyEntries := findChartEntriesByYear(db, year)
+
+		if len(yearlyEntries) > 0 {
+			format := delimiterFormatString()
+
+			fp.WriteString(fmt.Sprintf("### Best of %d\n\n", year))
+			fp.WriteString(outputTableHeader())
+			for i, chartEntry := range yearlyEntries {
+				title := chartEntry.Title
+				artist := chartEntry.Artist
+
+				output := fmt.Sprintf(format, i+1, artist, title, beatPortLink(chartEntry))
+				fp.WriteString(output)
+			}
+			fp.WriteString("\n")
+		}
+	}
+
+	fp.WriteString("## Years by month\n\n")
 	for year := 2016; year > 2012; year-- {
 		for month := 12; month > 0; month-- {
 			monthlyEntries := findChartEntriesByMonthAndYear(db, month, year)
@@ -32,8 +53,7 @@ func writeOutputFrom(db *sql.DB) {
 			if len(monthlyEntries) > 0 {
 				format := delimiterFormatString()
 
-				fp.WriteString("##")
-				fp.WriteString(fmt.Sprintf(" %s ", time.Month(month)))
+				fp.WriteString(fmt.Sprintf("### %s ", time.Month(month)))
 				fp.WriteString(strconv.Itoa(year) + " Charts" + "\n\n")
 				fp.WriteString(outputTableHeader())
 				for i, chartEntry := range monthlyEntries {

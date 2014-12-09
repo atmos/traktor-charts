@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func lineDelimiter() string {
@@ -36,7 +37,7 @@ func main() {
 
 	for month := 1; month < 13; month++ {
 		monthlyEntries := findChartEntriesByMonth(db, month)
-		fmt.Println("Status for month", month)
+		fmt.Println("Status for:", time.Month(month))
 		fmt.Println(lineDelimiter())
 		for _, chartEntry := range monthlyEntries {
 			output := fmt.Sprintf("| %-28s | %-55s | %-02d |", chartEntry.Artist, chartEntry.Title, chartEntry.Count)

@@ -6,6 +6,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"regexp"
+	"strconv"
 )
 
 func createTableStatement() string {
@@ -27,6 +28,12 @@ CREATE TABLE 'plays'(
 `
 }
 
+type ChartEntry struct {
+	Title  string
+	Count  int
+	Artist string
+}
+
 func insertTrackStatment() string {
 	return `
 INSERT INTO tracks (artist,name,audio_id) values(?,?,?)
@@ -35,6 +42,17 @@ INSERT INTO tracks (artist,name,audio_id) values(?,?,?)
 func insertPlayStatment() string {
 	return `
 INSERT INTO plays (track_id, month, day, hour, minute) values(?,?,?,?,?)
+`
+}
+
+func playsByMonthStatement(month int) string {
+	return `
+SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
+FROM plays,tracks
+WHERE month = ` + strconv.Itoa(month) + ` AND plays.track_id = tracks.id
+GROUP BY plays.track_id
+ORDER by total DESC
+LIMIT 10;
 `
 }
 
@@ -54,6 +72,27 @@ func countForTable(db *sql.DB, tableName string) int {
 	} else {
 		return -1
 	}
+}
+
+func findChartEntriesByMonth(db *sql.DB, month int) []ChartEntry {
+	var entries []ChartEntry
+	rows, err := db.Query(playsByMonthStatement(month))
+	if err != nil {
+		fmt.Println("Unable to query plays by month", err, "\n")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var title string
+		var total int
+		var artist string
+
+		if err := rows.Scan(&artist, &title, &total); err != nil {
+			fmt.Println("Unable to find this entry", err)
+		}
+		entries = append(entries, ChartEntry{Artist: artist, Title: title, Count: total})
+	}
+	return entries
 }
 
 func findTrackByAudioId(db *sql.DB, id string) int {

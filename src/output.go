@@ -59,7 +59,7 @@ func writeChartByMonthAndYear(fp *os.File, db *sql.DB) {
 func writeOutputFrom(db *sql.DB) {
 	totalPlays := strconv.Itoa(countForTable(db, "plays"))
 	totalTracks := strconv.Itoa(countForTable(db, "tracks"))
-        stats := totalPlays + " songs played, " + totalTracks + " were unique."
+	stats := totalPlays + " songs played, " + totalTracks + " were unique."
 
 	markdownFile := os.ExpandEnv("${HOME}/.traktor-charts.md")
 	fp, err := os.Create(markdownFile)

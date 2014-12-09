@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strconv"
 )
 
 type Entry struct {
@@ -21,14 +22,34 @@ func (e Entry) String() string {
 type EntryCollection struct {
 	XMLName   xml.Name `xml:"NML"`
 	EntryList []Entry  `xml:"COLLECTION>ENTRY"`
+	Year      int
+	Month     int
+	Day       int
+	Hour      int
+	Minute    int
 }
 
 func traktorDir(s string) string {
 	return os.ExpandEnv("${HOME}/Documents/Native Instruments") + "/" + s
 }
 
+func traktorFilenameExtract(s string, e *EntryCollection) {
+	pattern := `.*/history_(\d+)y(\d+)m(\d+)d_(\d+)h(\d+)m.*`
+	re := regexp.MustCompile(pattern)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) > 0 {
+		e.Year, _ = strconv.Atoi(matches[1])
+		e.Month, _ = strconv.Atoi(matches[2])
+		e.Day, _ = strconv.Atoi(matches[3])
+		e.Hour, _ = strconv.Atoi(matches[4])
+		e.Minute, _ = strconv.Atoi(matches[5])
+	}
+}
+
 func traktorParseFile(s string) (EntryCollection, bool) {
 	var entries EntryCollection
+
+	traktorFilenameExtract(s, &entries)
 
 	xmlFile, err := os.Open(s)
 	if err != nil {

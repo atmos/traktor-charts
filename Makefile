@@ -13,9 +13,10 @@ export CGO_CFLAGS CGO_LDFLAGS GOROOT GOPATH
 
 default: build
 
-build: vet vendor_get
+build:
 	/usr/bin/env CC=clang \
-		$(GO) build -v -o ./bin/traktor-charts ./src/traktor.go ./src/traktor-charts.go
+		$(GO) build -v -o ./bin/traktor-charts \
+		./src/db.go ./src/traktor.go ./src/traktor-charts.go
 
 doc:
 	godoc -http=:6060 -index

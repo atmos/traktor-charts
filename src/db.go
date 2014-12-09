@@ -51,7 +51,7 @@ SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
 FROM plays,tracks
 WHERE month = ` + strconv.Itoa(month) + ` AND plays.track_id = tracks.id
 GROUP BY plays.track_id
-ORDER by total DESC
+ORDER by total DESC, tracks.artist ASC
 LIMIT 10;
 `
 }

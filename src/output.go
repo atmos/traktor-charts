@@ -17,7 +17,7 @@ func writeChartByYear(fp *os.File, db *sql.DB) {
 		if len(yearlyEntries) > 0 {
 			format := delimiterFormatString()
 
-			fp.WriteString(fmt.Sprintf("### Best of %d\n\n", year))
+			fp.WriteString(fmt.Sprintf("#### Best of %d\n\n", year))
 			fp.WriteString(outputTableHeader())
 			for i, chartEntry := range yearlyEntries {
 				title := chartEntry.Title
@@ -40,7 +40,7 @@ func writeChartByMonthAndYear(fp *os.File, db *sql.DB) {
 			if len(monthlyEntries) > 0 {
 				format := delimiterFormatString()
 
-				fp.WriteString(fmt.Sprintf("### %s ", time.Month(month)))
+				fp.WriteString(fmt.Sprintf("#### %s ", time.Month(month)))
 				fp.WriteString(strconv.Itoa(year) + " Charts" + "\n\n")
 				fp.WriteString(outputTableHeader())
 				for i, chartEntry := range monthlyEntries {
@@ -88,5 +88,5 @@ func delimiterFormatString() string {
 }
 
 func outputTableHeader() string {
-	return "| Number | Artist | Title | Cop It |\n|---|---|---|---|\n"
+	return "| Number | Artist | Title | Check It |\n|---|---|---|---|\n"
 }

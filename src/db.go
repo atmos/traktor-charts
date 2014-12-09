@@ -38,6 +38,24 @@ INSERT INTO plays (track_id, month, day, hour, minute) values(?,?,?,?,?)
 `
 }
 
+func countForTable(db *sql.DB, tableName string) int {
+	rows, err := db.Query("SELECT COUNT(*) FROM " + tableName)
+	if err != nil {
+		fmt.Println("Unable to count:", tableName, err, "\n")
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		var total int
+		if err := rows.Scan(&total); err != nil {
+			fmt.Println("Unable to find:", tableName, err, "\n")
+		}
+		return total
+	} else {
+		return -1
+	}
+}
+
 func findTrackByAudioId(db *sql.DB, id string) int {
 	statement := `SELECT id from tracks where audio_id = ?`
 

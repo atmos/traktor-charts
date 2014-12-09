@@ -16,17 +16,19 @@ func main() {
 	}
 
 	fileCount := 0
-	for key, fileName := range archiveFiles {
-		fmt.Println("Found an NML File:" + key)
+	for _, fileName := range archiveFiles {
 		entries, _ := traktorParseFile(fileName)
 		for _, entry := range entries.EntryList {
-			fmt.Println("Inserting", entry.Title)
 			insertEntry(db, entries, entry)
 		}
-		fmt.Printf("Found %d entries\n", len(entries.EntryList))
 		fileCount++
 	}
 	fmt.Println("Found", fileCount, "NML files")
+
+	totalPlays := countForTable(db, "plays")
+	totalTracks := countForTable(db, "tracks")
+	fmt.Println("Found", totalTracks, "unique tracks.")
+	fmt.Println("For a total of", totalPlays, "plays.")
 
 	db.Close()
 }

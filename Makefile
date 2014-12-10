@@ -11,7 +11,9 @@ CGO_CFLAGS := -I$(BREW_PREFIX)/include
 CGO_LDFLAGS := -L$(BREW_PREFIX)/lib
 export CGO_CFLAGS CGO_LDFLAGS GOROOT GOPATH
 
-default: vet vendor_update run
+default: vet run
+
+bootstrap: vendor_update
 
 build:
 	/usr/bin/env CC=clang \

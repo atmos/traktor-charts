@@ -11,6 +11,7 @@ import (
 
 type Entry struct {
 	Title   string `xml:"TITLE,attr"`
+	Genre   string `xml:"INFO>GENRE,attr"`
 	Artist  string `xml:"ARTIST,attr"`
 	AudioId string `xml:"AUDIO_ID,attr"`
 }

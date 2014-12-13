@@ -13,8 +13,11 @@ func createTableStatement() string {
 	return `
 CREATE TABLE 'tracks'(
   id INTEGER PRIMARY KEY,
+  bpm      INTEGER,
+  key      STRING,
   artist   STRING,
   name     STRING,
+  genre    STRING,
   audio_id STRING UNIQUE
 );
 CREATE TABLE 'plays'(
@@ -30,14 +33,17 @@ CREATE TABLE 'plays'(
 }
 
 type ChartEntry struct {
-	Title  string
+	Bpm    int
 	Count  int
+	Key    string
+	Title  string
+	Genre  string
 	Artist string
 }
 
 func insertTrackStatment() string {
 	return `
-INSERT INTO tracks (artist,name,audio_id) values(?,?,?)
+INSERT INTO tracks (artist,name,genre,bpm,key,audio_id) values(?,?,?,?,?,?)
 `
 }
 func insertPlayStatment() string {
@@ -48,7 +54,7 @@ INSERT INTO plays (track_id, year, month, day, hour, minute) values(?,?,?,?,?,?)
 
 func playsByMonthAndYearStatement(month int, year int) string {
 	return `
-SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
+SELECT tracks.artist, tracks.name, tracks.genre, tracks.bpm, tracks.key, count(plays.track_id) AS total
 FROM plays,tracks
 WHERE
   month = ` + strconv.Itoa(month) +
@@ -62,7 +68,7 @@ LIMIT 10;
 
 func playsByYearStatement(year int) string {
 	return `
-SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
+SELECT tracks.artist, tracks.name, tracks.genre, tracks.bpm, tracks.key, count(plays.track_id) AS total
 FROM plays,tracks
 WHERE year = ` + strconv.Itoa(year) +
 		` AND plays.track_id = tracks.id
@@ -90,47 +96,41 @@ func countForTable(db *sql.DB, tableName string) int {
 	}
 }
 
-func findChartEntriesByYear(db *sql.DB, year int) []ChartEntry {
+func chartEntryFindBySql(db *sql.DB, query string) []ChartEntry {
 	var entries []ChartEntry
-	rows, err := db.Query(playsByYearStatement(year))
+	rows, err := db.Query(query)
 	if err != nil {
-		fmt.Println("Unable to query plays by year", err)
+		fmt.Println("Unable to execute query", err)
 		return entries
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var title string
-		var total int
-		var artist string
-
-		if err := rows.Scan(&artist, &title, &total); err != nil {
-			fmt.Println("Unable to find this entry", err)
-		}
-		entries = append(entries, ChartEntry{Artist: artist, Title: title, Count: total})
+		entries = append(entries, chartEntryForRows(rows))
 	}
 	return entries
 }
 
+func chartEntryForRows(rows *sql.Rows) ChartEntry {
+	var bpm int
+	var total int
+	var key string
+	var title string
+	var artist string
+	var genre string
+
+	if err := rows.Scan(&artist, &title, &genre, &bpm, &key, &total); err != nil {
+		fmt.Println("Unable to find this entry", err)
+	}
+	return ChartEntry{Artist: artist, Title: title, Bpm: bpm, Key: key, Genre: genre, Count: total}
+}
+
+func findChartEntriesByYear(db *sql.DB, year int) []ChartEntry {
+	return chartEntryFindBySql(db, playsByYearStatement(year))
+}
+
 func findChartEntriesByMonthAndYear(db *sql.DB, month int, year int) []ChartEntry {
-	var entries []ChartEntry
-	rows, err := db.Query(playsByMonthAndYearStatement(month, year))
-	if err != nil {
-		fmt.Println("Unable to query plays by month", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var title string
-		var total int
-		var artist string
-
-		if err := rows.Scan(&artist, &title, &total); err != nil {
-			fmt.Println("Unable to find this entry", err)
-		}
-		entries = append(entries, ChartEntry{Artist: artist, Title: title, Count: total})
-	}
-	return entries
+	return chartEntryFindBySql(db, playsByMonthAndYearStatement(month, year))
 }
 
 func findTrackByAudioId(db *sql.DB, id string) int {
@@ -161,7 +161,7 @@ func insertPlay(db *sql.DB, ec EntryCollection, e Entry, id int) {
 }
 
 func insertEntry(db *sql.DB, ec EntryCollection, e Entry) {
-	_, err := db.Exec(insertTrackStatment(), e.Artist, e.Title, e.AudioId)
+	_, err := db.Exec(insertTrackStatment(), e.Artist, e.Title, e.Genre(), e.Bpm(), e.Key(), e.AudioId)
 	if err != nil {
 		matched, _ := regexp.MatchString("UNIQUE constraint", err.Error())
 		if !matched {

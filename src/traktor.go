@@ -9,14 +9,35 @@ import (
 	"strconv"
 )
 
+type EntryInfo struct {
+	Key   string `xml:"KEY,attr"`
+	Genre string `xml:"GENRE,attr"`
+}
+
+type EntryTempo struct {
+	Bpm int `xml:"BPM,attr"`
+}
+
 type Entry struct {
-	Title   string `xml:"TITLE,attr"`
-	Artist  string `xml:"ARTIST,attr"`
-	AudioId string `xml:"AUDIO_ID,attr"`
+	Info    EntryInfo  `xml:"INFO"`
+	Tempo   EntryTempo `xml:"TEMPO"`
+	Title   string     `xml:"TITLE,attr"`
+	Artist  string     `xml:"ARTIST,attr"`
+	AudioId string     `xml:"AUDIO_ID,attr"`
+}
+
+func (e Entry) Key() string {
+	return e.Info.Key
+}
+func (e Entry) Genre() string {
+	return e.Info.Genre
+}
+func (e Entry) Bpm() int {
+	return e.Tempo.Bpm
 }
 
 func (e Entry) String() string {
-	return fmt.Sprintf("%s - %s", e.Artist, e.Title)
+	return fmt.Sprintf("%s - %s - %s", e.Artist, e.Title, e.Info.Genre)
 }
 
 type EntryCollection struct {

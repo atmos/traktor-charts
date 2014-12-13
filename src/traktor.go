@@ -10,14 +10,18 @@ import (
 )
 
 type Entry struct {
-	Title   string `xml:"TITLE,attr"`
-	Genre   string `xml:"INFO>GENRE,attr"`
-	Artist  string `xml:"ARTIST,attr"`
-	AudioId string `xml:"AUDIO_ID,attr"`
+	Info    EntryInfo `xml:"INFO"`
+	Title   string    `xml:"TITLE,attr"`
+	Artist  string    `xml:"ARTIST,attr"`
+	AudioId string    `xml:"AUDIO_ID,attr"`
+}
+
+type EntryInfo struct {
+	Genre string `xml:"GENRE,attr"`
 }
 
 func (e Entry) String() string {
-	return fmt.Sprintf("%s - %s", e.Artist, e.Title)
+	return fmt.Sprintf("%s - %s - %s", e.Artist, e.Title, e.Info.Genre)
 }
 
 type EntryCollection struct {

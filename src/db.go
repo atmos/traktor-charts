@@ -15,6 +15,7 @@ CREATE TABLE 'tracks'(
   id INTEGER PRIMARY KEY,
   artist   STRING,
   name     STRING,
+  genre    STRING,
   audio_id STRING UNIQUE
 );
 CREATE TABLE 'plays'(
@@ -32,12 +33,13 @@ CREATE TABLE 'plays'(
 type ChartEntry struct {
 	Title  string
 	Count  int
+	Genre  string
 	Artist string
 }
 
 func insertTrackStatment() string {
 	return `
-INSERT INTO tracks (artist,name,audio_id) values(?,?,?)
+INSERT INTO tracks (artist,name,genre,audio_id) values(?,?,?,?)
 `
 }
 func insertPlayStatment() string {
@@ -48,7 +50,7 @@ INSERT INTO plays (track_id, year, month, day, hour, minute) values(?,?,?,?,?,?)
 
 func playsByMonthAndYearStatement(month int, year int) string {
 	return `
-SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
+SELECT tracks.artist, tracks.name, tracks.genre, count(plays.track_id) AS total
 FROM plays,tracks
 WHERE
   month = ` + strconv.Itoa(month) +
@@ -62,7 +64,7 @@ LIMIT 10;
 
 func playsByYearStatement(year int) string {
 	return `
-SELECT tracks.artist, tracks.name, count(plays.track_id) AS total
+SELECT tracks.artist, tracks.name, tracks.genre, count(plays.track_id) AS total
 FROM plays,tracks
 WHERE year = ` + strconv.Itoa(year) +
 		` AND plays.track_id = tracks.id
@@ -103,11 +105,13 @@ func findChartEntriesByYear(db *sql.DB, year int) []ChartEntry {
 		var title string
 		var total int
 		var artist string
+		var genre string
 
-		if err := rows.Scan(&artist, &title, &total); err != nil {
+		if err := rows.Scan(&artist, &title, &genre, &total); err != nil {
 			fmt.Println("Unable to find this entry", err)
 		}
-		entries = append(entries, ChartEntry{Artist: artist, Title: title, Count: total})
+		entry := ChartEntry{Artist: artist, Title: title, Genre: genre, Count: total}
+		entries = append(entries, entry)
 	}
 	return entries
 }
@@ -121,14 +125,16 @@ func findChartEntriesByMonthAndYear(db *sql.DB, month int, year int) []ChartEntr
 	defer rows.Close()
 
 	for rows.Next() {
-		var title string
 		var total int
+		var title string
+		var genre string
 		var artist string
 
-		if err := rows.Scan(&artist, &title, &total); err != nil {
+		if err := rows.Scan(&artist, &title, &genre, &total); err != nil {
 			fmt.Println("Unable to find this entry", err)
 		}
-		entries = append(entries, ChartEntry{Artist: artist, Title: title, Count: total})
+		entry := ChartEntry{Artist: artist, Title: title, Genre: genre, Count: total}
+		entries = append(entries, entry)
 	}
 	return entries
 }
@@ -161,7 +167,7 @@ func insertPlay(db *sql.DB, ec EntryCollection, e Entry, id int) {
 }
 
 func insertEntry(db *sql.DB, ec EntryCollection, e Entry) {
-	_, err := db.Exec(insertTrackStatment(), e.Artist, e.Title, e.AudioId)
+	_, err := db.Exec(insertTrackStatment(), e.Artist, e.Title, e.Info.Genre, e.AudioId)
 	if err != nil {
 		matched, _ := regexp.MatchString("UNIQUE constraint", err.Error())
 		if !matched {

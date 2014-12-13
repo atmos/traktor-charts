@@ -21,9 +21,10 @@ func writeChartByYear(fp *os.File, db *sql.DB) {
 			fp.WriteString(outputTableHeader())
 			for i, chartEntry := range yearlyEntries {
 				title := chartEntry.Title
+				genre := chartEntry.Genre
 				artist := chartEntry.Artist
 
-				output := fmt.Sprintf(format, i+1, artist, title, listenLink(chartEntry))
+				output := fmt.Sprintf(format, i+1, artist, title, genre, listenLink(chartEntry))
 				fp.WriteString(output)
 			}
 			fp.WriteString("\n")
@@ -45,9 +46,10 @@ func writeChartByMonthAndYear(fp *os.File, db *sql.DB) {
 				fp.WriteString(outputTableHeader())
 				for i, chartEntry := range monthlyEntries {
 					title := chartEntry.Title
+					genre := chartEntry.Genre
 					artist := chartEntry.Artist
 
-					output := fmt.Sprintf(format, i+1, artist, title, listenLink(chartEntry))
+					output := fmt.Sprintf(format, i+1, artist, title, genre, listenLink(chartEntry))
 					fp.WriteString(output)
 				}
 				fp.WriteString("\n")
@@ -85,9 +87,9 @@ func listenLink(ce ChartEntry) string {
 }
 
 func delimiterFormatString() string {
-	return "| %d | %s | %s | [YouTube](%s) |\n"
+	return "| %d | %s | %s | %s | [YouTube](%s) |\n"
 }
 
 func outputTableHeader() string {
-	return "| Number | Artist | Title | Check It |\n|---|---|---|---|\n"
+	return "| Number | Artist | Title | Genre | Check It |\n|---|---|---|---|---|\n"
 }

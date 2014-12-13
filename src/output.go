@@ -15,16 +15,10 @@ func writeChartByYear(fp *os.File, db *sql.DB) {
 		yearlyEntries := findChartEntriesByYear(db, year)
 
 		if len(yearlyEntries) > 0 {
-			format := delimiterFormatString()
-
 			fp.WriteString(fmt.Sprintf("#### Best of %d\n\n", year))
 			fp.WriteString(outputTableHeader())
 			for i, chartEntry := range yearlyEntries {
-				title := chartEntry.Title
-				genre := chartEntry.Genre
-				artist := chartEntry.Artist
-
-				output := fmt.Sprintf(format, i+1, artist, title, genre, listenLink(chartEntry))
+				output := chartEntry.toMarkdown(i+1, listenLink(chartEntry))
 				fp.WriteString(output)
 			}
 			fp.WriteString("\n")
@@ -39,17 +33,11 @@ func writeChartByMonthAndYear(fp *os.File, db *sql.DB) {
 			monthlyEntries := findChartEntriesByMonthAndYear(db, month, year)
 
 			if len(monthlyEntries) > 0 {
-				format := delimiterFormatString()
-
 				fp.WriteString(fmt.Sprintf("#### %s ", time.Month(month)))
 				fp.WriteString(strconv.Itoa(year) + " Charts" + "\n\n")
 				fp.WriteString(outputTableHeader())
 				for i, chartEntry := range monthlyEntries {
-					title := chartEntry.Title
-					genre := chartEntry.Genre
-					artist := chartEntry.Artist
-
-					output := fmt.Sprintf(format, i+1, artist, title, genre, listenLink(chartEntry))
+					output := chartEntry.toMarkdown(i+1, listenLink(chartEntry))
 					fp.WriteString(output)
 				}
 				fp.WriteString("\n")
@@ -86,10 +74,12 @@ func listenLink(ce ChartEntry) string {
 	return link + url.QueryEscape(ce.Artist+" "+ce.Title)
 }
 
-func delimiterFormatString() string {
-	return "| %d | %s | %s | %s | [YouTube](%s) |\n"
+func (ce ChartEntry) toMarkdown(num int, link string) string {
+	format := "| %d | %s | %s | %s | %d | %s | [YouTube](%s) |\n"
+
+	return fmt.Sprintf(format, num, ce.Artist, ce.Title, ce.Genre, ce.Bpm, ce.Key, link)
 }
 
 func outputTableHeader() string {
-	return "| Number | Artist | Title | Genre | Check It |\n|---|---|---|---|---|\n"
+	return "| Number | Artist | Title | Genre | BPM | Key | Check It |\n|---|---|---|---|---|---|---|\n"
 }

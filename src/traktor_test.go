@@ -24,6 +24,9 @@ func TestNMLFileParsing(t *testing.T) {
 	entry := entries.EntryList[1]
 	assert.Equal(t, entry.Title, "Night Drive (Original Mix)", "Title does not match.")
 	assert.Equal(t, entry.Artist, "Tony Rohr", "Artist does not match.")
+	assert.Equal(t, entry.Genre(), "Techno", "Genre does not match.")
+	assert.Equal(t, entry.Bpm(), 126, "BPM does not match.")
+	assert.Equal(t, entry.Length(), 488, "Length does not match.")
 
 	for _, entry := range entries.EntryList {
 		if assert.NotNil(t, entry) {

@@ -6,5 +6,5 @@ Try to copy [Traktor DJ Charts Export](http://tomashg.com/?p=1132) in go.
 
 # Development
 
+    % make boostrap
     % make
-    % bin/traktor-charts

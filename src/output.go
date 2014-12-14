@@ -75,9 +75,9 @@ func listenLink(ce ChartEntry) string {
 }
 
 func (ce ChartEntry) toMarkdown(num int, link string) string {
-	format := "| %d | %s | %s | %s | %d | %s | ~%dm | [YouTube](%s) |\n"
+	format := "| %d | %s | %s | %s | %d | %s | %s | [YouTube](%s) |\n"
 
-	return fmt.Sprintf(format, num, ce.Artist, ce.Title, ce.Genre, ce.Bpm, ce.Key, ce.Length/60, link)
+	return fmt.Sprintf(format, num, ce.Artist, ce.Title, ce.Genre, ce.Bpm, ce.Key, ce.StringLength(), link)
 }
 
 func outputTableHeader() string {

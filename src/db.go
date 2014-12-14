@@ -43,6 +43,10 @@ type ChartEntry struct {
 	Artist string
 }
 
+func (ce ChartEntry) StringLength() string {
+	return fmt.Sprintf("%dm:%02ds", ce.Length/60, ce.Length%60)
+}
+
 func insertTrackStatment() string {
 	return `
 INSERT INTO tracks (artist,name,genre,bpm,key,length,audio_id) values(?,?,?,?,?,?,?)

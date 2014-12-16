@@ -52,6 +52,14 @@ func insertTrackStatment() string {
 INSERT INTO tracks (artist,name,genre,bpm,key,length,audio_id) values(?,?,?,?,?,?,?)
 `
 }
+func updateTrackStatment() string {
+	return `
+UPDATE tracks
+SET genre = ?, bpm = ?, key = ?, length = ?
+WHERE id = ?
+`
+}
+
 func insertPlayStatment() string {
 	return `
 INSERT INTO plays (track_id, year, month, day, hour, minute) values(?,?,?,?,?,?)
@@ -176,7 +184,22 @@ func insertEntry(db *sql.DB, ec EntryCollection, e Entry) {
 		}
 	}
 	trackId := findTrackByAudioId(db, e.AudioId)
+	updateTrack(db, e, trackId)
 	insertPlay(db, ec, e, trackId)
+}
+
+func updateTrack(db *sql.DB, e Entry, id int) {
+	res, err := db.Exec(updateTrackStatment(), e.Genre(), e.Bpm(), e.Key(), e.Length(), id)
+	if err != nil {
+		fmt.Println("Error:\n", err)
+		matched, _ := regexp.MatchString("UNIQUE constraint", err.Error())
+		if !matched {
+			fmt.Println("Error:\n", err)
+		}
+	}
+
+	affected, _ := res.RowsAffected()
+	fmt.Println("Hi:", affected)
 }
 
 func initializeDB(s string) (*sql.DB, bool) {

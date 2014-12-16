@@ -9,59 +9,80 @@ import (
 	"strconv"
 )
 
-type EntryInfo struct {
+// Exported data types for formatting
+type TraktorData struct {
+	Plays  int
+	Tracks int
+	ByYear []TraktorDataByYear
+}
+
+type TraktorDataByYear struct {
+	Year    int
+	Charts  []ChartEntry
+	ByMonth []TraktorByYearAndMonth
+}
+
+type TraktorByYearAndMonth struct {
+	Year  int
+	Month int
+
+	Charts []ChartEntry
+}
+
+// XML data types for archive parsing
+type TraktorXMLEntryInfo struct {
 	Key    string `xml:"KEY,attr"`
 	Genre  string `xml:"GENRE,attr"`
 	Length int    `xml:"PLAYTIME,attr"`
 }
 
-type EntryTempo struct {
+type TraktorXMLEntryTempo struct {
 	Bpm int `xml:"BPM,attr"`
 }
 
-type Entry struct {
-	Info    EntryInfo  `xml:"INFO"`
-	Tempo   EntryTempo `xml:"TEMPO"`
-	Title   string     `xml:"TITLE,attr"`
-	Artist  string     `xml:"ARTIST,attr"`
-	AudioId string     `xml:"AUDIO_ID,attr"`
+type TraktorXMLEntry struct {
+	Info    TraktorXMLEntryInfo  `xml:"INFO"`
+	Tempo   TraktorXMLEntryTempo `xml:"TEMPO"`
+	Title   string               `xml:"TITLE,attr"`
+	Artist  string               `xml:"ARTIST,attr"`
+	AudioId string               `xml:"AUDIO_ID,attr"`
 }
 
-func (e Entry) Key() string {
+func (e TraktorXMLEntry) Key() string {
 	return e.Info.Key
 }
 
-func (e Entry) Genre() string {
+func (e TraktorXMLEntry) Genre() string {
 	return e.Info.Genre
 }
 
-func (e Entry) Length() int {
+func (e TraktorXMLEntry) Length() int {
 	return e.Info.Length
 }
 
-func (e Entry) Bpm() int {
+func (e TraktorXMLEntry) Bpm() int {
 	return e.Tempo.Bpm
 }
 
-func (e Entry) String() string {
+func (e TraktorXMLEntry) String() string {
 	return fmt.Sprintf("%s - %s - %s", e.Artist, e.Title, e.Info.Genre)
 }
 
-type EntryCollection struct {
-	XMLName   xml.Name `xml:"NML"`
-	EntryList []Entry  `xml:"COLLECTION>ENTRY"`
-	Year      int
-	Month     int
-	Day       int
-	Hour      int
-	Minute    int
+type TraktorXMLEntryCollection struct {
+	XMLName             xml.Name          `xml:"NML"`
+	TraktorXMLEntryList []TraktorXMLEntry `xml:"COLLECTION>ENTRY"`
+	Year                int
+	Month               int
+	Day                 int
+	Hour                int
+	Minute              int
 }
 
 func traktorDir(s string) string {
 	return os.ExpandEnv("${HOME}/Documents/Native Instruments") + "/" + s
 }
 
-func traktorFilenameExtract(s string, e *EntryCollection) {
+func traktorFilenameExtract(s string, e *TraktorXMLEntryCollection) {
 	pattern := `.*/history_(\d+)y(\d+)m(\d+)d_(\d+)h(\d+)m.*`
 	re := regexp.MustCompile(pattern)
 	matches := re.FindStringSubmatch(s)
@@ -74,8 +95,8 @@ func traktorFilenameExtract(s string, e *EntryCollection) {
 	}
 }
 
-func traktorParseFile(s string) (EntryCollection, bool) {
-	var entries EntryCollection
+func traktorParseFile(s string) (TraktorXMLEntryCollection, bool) {
+	var entries TraktorXMLEntryCollection
 
 	traktorFilenameExtract(s, &entries)
 

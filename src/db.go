@@ -160,14 +160,14 @@ func findTrackByAudioId(db *sql.DB, id string) int {
 	}
 }
 
-func insertPlay(db *sql.DB, ec EntryCollection, e Entry, id int) {
+func insertPlay(db *sql.DB, ec TraktorXMLEntryCollection, e TraktorXMLEntry, id int) {
 	_, err := db.Exec(insertPlayStatment(), id, ec.Year, ec.Month, ec.Day, ec.Hour, ec.Minute)
 	if err != nil {
 		fmt.Println("Error:\n", err)
 	}
 }
 
-func insertEntry(db *sql.DB, ec EntryCollection, e Entry) {
+func insertEntry(db *sql.DB, ec TraktorXMLEntryCollection, e TraktorXMLEntry) {
 	_, err := db.Exec(insertTrackStatment(), e.Artist, e.Title, e.Genre(), e.Bpm(), e.Key(), e.Length(), e.AudioId)
 	if err != nil {
 		matched, _ := regexp.MatchString("UNIQUE constraint", err.Error())
@@ -192,4 +192,27 @@ func initializeDB(s string) (*sql.DB, bool) {
 	db.Exec(createTableStatement())
 
 	return db, true
+}
+
+func getTraktorData(db *sql.DB) TraktorData {
+	playCount := countForTable(db, "plays")
+	trackCount := countForTable(db, "tracks")
+
+	traktorData := TraktorData{Plays: playCount, Tracks: trackCount}
+
+	for year := 2020; year > 2010; year-- {
+		yearlyEntries := findChartEntriesByYear(db, year)
+		if len(yearlyEntries) > 0 {
+			yearlyData := TraktorDataByYear{Year: year, Charts: yearlyEntries}
+			for month := 12; month > 0; month-- {
+				monthlyData := TraktorByYearAndMonth{Year: year, Month: month}
+				monthlyData.Charts = findChartEntriesByMonthAndYear(db, month, year)
+				if len(monthlyData.Charts) > 0 {
+					yearlyData.ByMonth = append(yearlyData.ByMonth, monthlyData)
+				}
+			}
+			traktorData.ByYear = append(traktorData.ByYear, yearlyData)
+		}
+	}
+	return traktorData
 }

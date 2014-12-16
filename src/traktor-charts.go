@@ -18,14 +18,15 @@ func main() {
 	fileCount := 0
 	for _, fileName := range archiveFiles {
 		entries, _ := traktorParseFile(fileName)
-		for _, entry := range entries.EntryList {
+		for _, entry := range entries.TraktorXMLEntryList {
 			insertEntry(db, entries, entry)
 		}
 		fileCount++
 	}
 	fmt.Println("Found", fileCount, "archive files")
 
-	writeOutputFrom(db)
+	writeMarkdownFile(getTraktorData(db))
+	//writeJSONFile(getTraktorData(db))
 
 	fmt.Println("Your charts are in ~/.traktor-charts.md.")
 	fmt.Println("You should share them on https://gist.github.com")

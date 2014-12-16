@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
 )
 
 func main() {
@@ -26,7 +31,9 @@ func main() {
 	fmt.Println("Found", fileCount, "archive files")
 
 	writeMarkdownFile(getTraktorData(db))
-	writeJSONFile(getTraktorData(db))
+	jsonBytes := writeJSONFile(getTraktorData(db))
+
+	httpPostResults(jsonBytes)
 
 	fmt.Println("Your charts are in ~/.traktor-charts.md.")
 	fmt.Println("You should share them on https://gist.github.com")
@@ -34,4 +41,27 @@ func main() {
 	fmt.Println("Run 'cat ~/.traktor-charts.md | pbcopy' in your terminal and paste into a new gist.")
 
 	db.Close()
+}
+
+func httpPostResults(traktorBody []byte) {
+	url := "https://djcharts.io/api/import"
+	fmt.Println("URL:>", url)
+
+	token, _ := ioutil.ReadFile(os.ExpandEnv("${HOME}/.traktor-charts"))
+	basicAuthToken := strings.TrimSuffix(string(token), "\n")
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(traktorBody))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth("X", basicAuthToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Response Status:", resp.Status)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Response Body:", string(body))
 }

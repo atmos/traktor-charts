@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func writeJSONFile(traktorData TraktorData) {
+func writeJSONFile(traktorData TraktorData) []byte {
 	data, err := json.MarshalIndent(traktorData, "", "  ")
 	if err != nil {
 		fmt.Println("Unable to marshal shit, yo", err)
@@ -24,4 +24,6 @@ func writeJSONFile(traktorData TraktorData) {
 	fmt.Println("JSON files for your charts are in ~/.traktor-charts.json.")
 
 	fp.Sync()
+
+	return data
 }

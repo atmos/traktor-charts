@@ -14,8 +14,7 @@ func chartByYear(ty TraktorDataByYear) string {
 	for i, chartEntry := range ty.Charts {
 		result += chartEntry.toMarkdown(i+1, listenLink(chartEntry))
 	}
-	result += "\n"
-	return result
+	return "\n" + result
 }
 
 func chartByMonthAndYear(tbmay TraktorByYearAndMonth) string {
@@ -28,8 +27,7 @@ func chartByMonthAndYear(tbmay TraktorByYearAndMonth) string {
 	for i, chartEntry := range tbmay.Charts {
 		result += chartEntry.toMarkdown(i+1, listenLink(chartEntry))
 	}
-	result += "\n"
-	return result
+	return "\n" + result
 }
 
 func writeMarkdownFile(traktorData TraktorData) {

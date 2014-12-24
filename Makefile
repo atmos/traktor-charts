@@ -18,7 +18,7 @@ bootstrap: vendor_update
 build:
 	/usr/bin/env CC=clang \
 		$(GO) build -v -o ./bin/traktor-charts \
-		./src/db.go ./src/output_json.go ./src/output_markdown.go ./src/traktor.go ./src/traktor-charts.go
+		./src/db.go ./src/track.go ./src/play.go ./src/export.go ./src/output_json.go ./src/output_markdown.go ./src/traktor.go ./src/traktor-charts.go
 
 doc:
 	godoc -http=:6060 -index

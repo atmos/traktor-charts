@@ -31,9 +31,10 @@ func main() {
 	fmt.Println("Found", fileCount, "archive files")
 
 	writeMarkdownFile(getTraktorData(db))
-	jsonBytes := writeJSONFile(getTraktorData(db))
 
-	httpPostResults(jsonBytes)
+	_ = getExportData(db)
+	//jsonBytes := writeJSONFile(getTraktorData(db))
+	//httpPostResults(jsonBytes)
 
 	fmt.Println("Your charts are in ~/.traktor-charts.md.")
 	fmt.Println("You should share them on https://gist.github.com")

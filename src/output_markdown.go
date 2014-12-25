@@ -31,7 +31,7 @@ func chartByMonthAndYear(tbmay TraktorByYearAndMonth) string {
 }
 
 func writeMarkdownFile(traktorData TraktorData) {
-	stats := fmt.Sprintf("%d songs playd, %d were unique.", traktorData.Plays, traktorData.Tracks)
+	stats := fmt.Sprintf("%d songs played, %d were unique.", traktorData.Plays, traktorData.Tracks)
 
 	markdownFile := os.ExpandEnv("${HOME}/.traktor-charts.md")
 	fp, err := os.Create(markdownFile)

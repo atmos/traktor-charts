@@ -1,13 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
 )
 
-func writeJSONFile(traktorData TraktorData) []byte {
-	data, err := json.MarshalIndent(traktorData, "", "  ")
+func getExportData(db *sql.DB) []byte {
+	tracks := getAllTracks(db)
+
+	data, err := json.MarshalIndent(tracks, "", "  ")
 	if err != nil {
 		fmt.Println("Unable to marshal shit, yo", err)
 	}
@@ -21,9 +24,8 @@ func writeJSONFile(traktorData TraktorData) []byte {
 
 	fp.Write(data)
 
-	fmt.Println("JSON files for your charts are in ~/.traktor-charts.json.")
+	fmt.Println("JSON files for v2 are in ~/.traktor-charts.json.")
 
 	fp.Sync()
-
 	return data
 }

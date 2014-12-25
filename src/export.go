@@ -15,7 +15,7 @@ func getExportData(db *sql.DB) []byte {
 		fmt.Println("Unable to marshal shit, yo", err)
 	}
 
-	jsonFile := os.ExpandEnv("${HOME}/.traktor-charts-v2.json")
+	jsonFile := os.ExpandEnv("${HOME}/.traktor-charts.json")
 	fp, err := os.Create(jsonFile)
 	if err != nil {
 		fmt.Println("Unable to create", jsonFile)
@@ -24,7 +24,7 @@ func getExportData(db *sql.DB) []byte {
 
 	fp.Write(data)
 
-	fmt.Println("JSON files for v2 are in ~/.traktor-charts-v2.json.")
+	fmt.Println("JSON files for v2 are in ~/.traktor-charts.json.")
 
 	fp.Sync()
 	return data

@@ -15,7 +15,7 @@ type Play struct {
 	Minute  int
 }
 
-func playForRowsAndTrack(rows *sql.Rows, track *Track) Play {
+func playForRows(rows *sql.Rows) Play {
 	var id int
 	var track_id int
 	var year int
@@ -30,19 +30,19 @@ func playForRowsAndTrack(rows *sql.Rows, track *Track) Play {
 	return Play{Id: id, TrackId: track_id, Year: year, Month: month, Day: day, Hour: hour, Minute: minute}
 }
 
-func playsBySqlAndTrack(db *sql.DB, track *Track) []Play {
+func playsByTrackId(db *sql.DB, track_id int) []Play {
 	var plays []Play
-	statement := `SELECT plays.* from plays,tracks where track_id = ?`
+	statement := `SELECT plays.* from plays where track_id = ?`
 
-	rows, err := db.Query(statement, track.Id)
+	rows, err := db.Query(statement, track_id)
 	if err != nil {
-		fmt.Println("Unable to execute query", track.Id, err)
+		fmt.Println("Unable to execute query", track_id, err)
 		return plays
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		plays = append(plays, playForRowsAndTrack(rows, track))
+		plays = append(plays, playForRows(rows))
 	}
 	return plays
 }

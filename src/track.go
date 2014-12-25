@@ -42,12 +42,9 @@ func tracksBySql(db *sql.DB, query string) []Track {
 	}
 	defer rows.Close()
 
-	var track Track
 	for rows.Next() {
-		track = trackForRows(rows)
-		track.Plays = playsBySqlAndTrack(db, &track)
-		fmt.Println("Found track :", track.Id)
-		fmt.Println("Found plays:", len(track.Plays))
+		track := trackForRows(rows)
+		track.Plays = playsByTrackId(db, track.Id)
 		tracks = append(tracks, track)
 	}
 	return tracks

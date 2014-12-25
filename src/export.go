@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func getExportData(db *sql.DB) []Track {
+func getExportData(db *sql.DB) []byte {
 	tracks := getAllTracks(db)
 
 	data, err := json.MarshalIndent(tracks, "", "  ")
@@ -27,5 +27,5 @@ func getExportData(db *sql.DB) []Track {
 	fmt.Println("JSON files for v2 are in ~/.traktor-charts-v2.json.")
 
 	fp.Sync()
-	return tracks
+	return data
 }

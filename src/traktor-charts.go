@@ -56,7 +56,7 @@ func main() {
 		httpPostResults(jsonBytes)
 	} else {
 		fmt.Println("No new traktor archive files found")
-		os.Exit(2)
+		os.Exit(3)
 	}
 
 }

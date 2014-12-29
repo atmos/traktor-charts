@@ -6,8 +6,27 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
+
+func requiresUpdate(count int) bool {
+	shouldUpdate := false
+	countFile := os.ExpandEnv("${HOME}/.traktor-charts.count")
+
+	oldCount, fileErr := ioutil.ReadFile(countFile)
+	if fileErr != nil {
+		shouldUpdate = true
+	} else {
+		oldFileCount, _ := strconv.Atoi(string(oldCount))
+		fmt.Printf("Found %d old entries\n", oldFileCount)
+		if count != oldFileCount {
+			shouldUpdate = true
+		}
+	}
+	_ = ioutil.WriteFile(countFile, []byte(strconv.Itoa(count)), 0600)
+	return shouldUpdate
+}
 
 func main() {
 	fmt.Println("NI directories:", traktorDir(""))
@@ -31,9 +50,15 @@ func main() {
 	fmt.Println("Found", fileCount, "archive files")
 
 	jsonBytes := getExportData(db)
-	httpPostResults(jsonBytes)
-
 	db.Close()
+
+	if requiresUpdate(fileCount) {
+		httpPostResults(jsonBytes)
+	} else {
+		fmt.Println("No new traktor archive files found")
+		os.Exit(2)
+	}
+
 }
 
 func httpPostResults(traktorBody []byte) {

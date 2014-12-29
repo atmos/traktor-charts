@@ -30,15 +30,8 @@ func main() {
 	}
 	fmt.Println("Found", fileCount, "archive files")
 
-	writeMarkdownFile(getTraktorData(db))
-
 	jsonBytes := getExportData(db)
 	httpPostResults(jsonBytes)
-
-	fmt.Println("Your charts are in ~/.traktor-charts.md.")
-	fmt.Println("You should share them on https://gist.github.com")
-
-	fmt.Println("Run 'cat ~/.traktor-charts.md | pbcopy' in your terminal and paste into a new gist.")
 
 	db.Close()
 }

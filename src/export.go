@@ -24,7 +24,7 @@ func getExportData(db *sql.DB) []byte {
 
 	fp.Write(data)
 
-	fmt.Println("JSON files for v2 are in ~/.traktor-charts.json.")
+	fmt.Println("JSON output is in ~/.traktor-charts.json.")
 
 	fp.Sync()
 	return data

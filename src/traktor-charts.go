@@ -10,11 +10,13 @@ import (
 	"strings"
 )
 
+func countFile() string {
+	return os.ExpandEnv("${HOME}/.traktor-charts.count")
+}
 func requiresUpdate(count int) bool {
 	shouldUpdate := false
-	countFile := os.ExpandEnv("${HOME}/.traktor-charts.count")
 
-	oldCount, fileErr := ioutil.ReadFile(countFile)
+	oldCount, fileErr := ioutil.ReadFile(countFile())
 	if fileErr != nil {
 		shouldUpdate = true
 	} else {
@@ -24,7 +26,6 @@ func requiresUpdate(count int) bool {
 			shouldUpdate = true
 		}
 	}
-	_ = ioutil.WriteFile(countFile, []byte(strconv.Itoa(count)), 0600)
 	return shouldUpdate
 }
 
@@ -53,7 +54,11 @@ func main() {
 	db.Close()
 
 	if requiresUpdate(fileCount) {
-		httpPostResults(jsonBytes)
+		if httpPostResults(jsonBytes) {
+			_ = ioutil.WriteFile(countFile(), []byte(strconv.Itoa(fileCount)), 0600)
+		} else {
+			os.Exit(3)
+		}
 	} else {
 		fmt.Println("No new traktor archive files found")
 		os.Exit(3)
@@ -61,7 +66,7 @@ func main() {
 
 }
 
-func httpPostResults(traktorBody []byte) {
+func httpPostResults(traktorBody []byte) bool {
 	url := "https://djcharts.io/api/import"
 	fmt.Println("URL:>", url)
 
@@ -82,4 +87,5 @@ func httpPostResults(traktorBody []byte) {
 	fmt.Println("Response Status:", resp.Status)
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println("Response Body:", string(body))
+	return resp.Status == "201"
 }

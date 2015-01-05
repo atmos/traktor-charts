@@ -6,7 +6,7 @@
 GOPATH := ${PWD}/_vendor:${GOPATH}
 BREW_PREFIX := $(shell brew --prefix 2>/dev/null)
 GO := $(BREW_PREFIX)/bin/go
-GOROOT := $(BREW_PREFIX)/Cellar/go/1.3.3/libexec
+GOROOT := $(BREW_PREFIX)/Cellar/go/1.4/libexec
 CGO_CFLAGS := -I$(BREW_PREFIX)/include
 CGO_LDFLAGS := -L$(BREW_PREFIX)/lib
 export CGO_CFLAGS CGO_LDFLAGS GOROOT GOPATH
@@ -63,5 +63,5 @@ vendor_update: vendor_get
 # http://godoc.org/code.google.com/p/go.tools/cmd/vet
 # go get code.google.com/p/go.tools/cmd/vet
 vet:
-	$(GO) get code.google.com/p/go.tools/cmd/vet
+	$(GO) get golang.org/x/tools/cmd/vet
 	$(GO) vet ./src/...

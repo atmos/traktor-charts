@@ -57,11 +57,12 @@ func main() {
 		if httpPostResults(jsonBytes) {
 			_ = ioutil.WriteFile(countFile(), []byte(strconv.Itoa(fileCount)), 0600)
 		} else {
+			fmt.Println("Invalid credentials to post.")
 			os.Exit(3)
 		}
 	} else {
 		fmt.Println("No new traktor archive files found")
-		os.Exit(3)
+		os.Exit(1)
 	}
 
 }
@@ -87,5 +88,5 @@ func httpPostResults(traktorBody []byte) bool {
 	fmt.Println("Response Status:", resp.Status)
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println("Response Body:", string(body))
-	return resp.Status == "201"
+	return resp.Status == "201 Created"
 }

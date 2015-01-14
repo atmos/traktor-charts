@@ -68,7 +68,7 @@ func main() {
     }
   } else {
     fmt.Println("Unable to pulse. Your app is likely misconfigured")
-    os.Exit(3)
+    os.Exit(2)
   }
 
 }
